@@ -1,0 +1,54 @@
+# id
+move_field(_id,'_r._id')
+replace_all(_r._id,'.*:','')
+replace_all(_r._id,'-\w+$','')
+prepend(_r._id,'http://lib.ugent.be/')
+
+# DC - http://www.loc.gov/marc/marc2dc.html
+
+# contributor
+marc_map(100ad,_r.dc_contributor.$append.foaf_name, -join => '%')
+marc_map(110ad,_r.dc_contributor.$append.foaf_name, -join => '%')
+marc_map(111ad,_r.dc_contributor.$append.foaf_name, -join => '%')
+marc_map(700ad,_r.dc_contributor.$append.foaf_name, -join => '%')
+marc_map(710ad,_r.dc_contributor.$append.foaf_name, -join => '%')
+marc_map(711ad,_r.dc_contributor.$append.foaf_name, -join => '%')
+marc_map(720ad,_r.dc_contributor.$append.foaf_name, -join => '%')
+
+if exists(_r.dc_contributor)
+do list(path => _r.dc_contributor) 
+    split_field(foaf_name,"%")
+    if exists(foaf_name.1)
+        split_field(foaf_name.1,"-")
+        copy_field(foaf_name.1.0,schema_birthDate)
+        copy_field(foaf_name.1.1,schema_deathDate)
+        replace_all(schema_birthDate,'(\d{4}).*','$1')
+        replace_all(schema_deathDate,'(\d{4}).*','$1')
+    end
+    join_field(foaf_name)
+end
+end
+
+# Title
+marc_map(245,_r.dc_title.$append, -join => ' ')
+marc_map(246,_r.dc_title.$append, -join => ' ')
+marc_map(210,_r.dc_title.$append, -join => ' ')
+marc_map(222,_r.dc_title.$append, -join => ' ')
+marc_map(240,_r.dc_title.$append, -join => ' ')
+marc_map(243,_r.dc_title.$append, -join => ' ')
+marc_map(247,_r.dc_title.$append, -join => ' ')
+
+# Language
+marc_map(008/35-37,_r.dc_language.$append)
+marc_map(041abdefghj,_r.dc_language.$append, -join => ' ')
+marc_map(546,_r.dc_language.$append, -join => ' ')
+
+# Clean
+retain_field(_r)
+move_field(_r,.)
+
+do visitor()
+  unless all_match(scalar,'^http.*')
+    replace_all(scalar,'$','@')
+  end
+end
