@@ -1,3 +1,3 @@
 #/bin/bash
-   read LINE
-   echo "You said ${LINE}!"
+read LINE
+echo "You said ${LINE}!"
