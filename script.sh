@@ -1,1 +1,3 @@
-echo "script is executed"
+#/bin/bash
+   read LINE
+   echo "You said ${LINE}!"
